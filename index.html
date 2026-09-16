@@ -1,227 +1,835 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Diário de Humor</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      transition: background 0.5s;
-      padding: 20px;
-    }
-    select, button, input {
-      padding: 10px;
-      margin: 10px;
-      font-size: 16px;
-    }
-    #frase {
-      margin-top: 20px;
-      font-size: 20px;
-      font-weight: bold;
-    }
-    #tabs {
-      margin-top: 20px;
-    }
-    .tab {
-      display: inline-block;
-      padding: 10px;
-      cursor: pointer;
-      border: 1px solid #ccc;
-      margin: 0 5px;
-    }
-    .active {
-      background: #eee;
-      font-weight: bold;
-    }
-    .section {
-      display: none;
-      margin-top: 20px;
-    }
-    .registro {
-      margin: 5px 0;
-      padding: 5px;
-      border-bottom: 1px solid #ccc;
-    }
-    #grafico {
-      max-width: 500px;
-      margin: 30px auto;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSM | Encurtador de Links Oficial Pro</title>
+    <style>
+        :root {
+            --tsm-teal: #0f5b72;
+            --tsm-teal-dark: #0a4152;
+            --tsm-teal-light: #e6f2f5;
+            --tsm-green: #69af37;
+            --tsm-green-dark: #55912b;
+            --tsm-green-light: #eff8ea;
+            --bg-color: #f2f7f8;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbe0e5;
+            --danger: #ef4444;
+            --success-toast: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 860px;
+        }
+
+        /* HEADER E LOGO TSM */
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-box {
+            background: var(--card-bg);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 35px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 20px rgba(15, 91, 114, 0.06);
+            margin-bottom: 15px;
+        }
+
+        .tsm-logo-svg {
+            width: 220px;
+            height: auto;
+        }
+
+        header h1 {
+            font-size: 22px;
+            color: var(--tsm-teal);
+            font-weight: 800;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 18px;
+            color: var(--tsm-teal);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        /* MÉTRICAS / SUMMARY */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: var(--tsm-teal-light);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .metric-icon {
+            font-size: 28px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .metric-info h3 {
+            font-size: 12px;
+            color: var(--tsm-teal);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .metric-info p {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--tsm-teal-dark);
+        }
+
+        /* FORMULÁRIO */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--tsm-teal);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #f8fafb;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-dark);
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--tsm-teal);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(15, 91, 114, 0.15);
+        }
+
+        .slug-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: #f8fafb;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .slug-prefix {
+            padding: 12px 14px;
+            background-color: var(--tsm-teal-light);
+            color: var(--tsm-teal);
+            font-size: 13px;
+            font-weight: 700;
+            border-right: 1.5px solid var(--border-color);
+            white-space: nowrap;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .slug-wrapper input {
+            border: none;
+            border-radius: 0;
+            background: transparent;
+        }
+
+        button.btn-primary {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--tsm-green);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(105, 175, 55, 0.25);
+        }
+
+        button.btn-primary:hover {
+            background-color: var(--tsm-green-dark);
+        }
+
+        button.btn-primary:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* TOOLBAR DA LISTA */
+        .list-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .list-toolbar input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            font-size: 14px;
+        }
+
+        .btn-toolbar {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+            background: white;
+            color: var(--tsm-teal);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-toolbar:hover {
+            background: var(--tsm-teal-light);
+            border-color: var(--tsm-teal);
+        }
+
+        /* LISTA DE LINKS */
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .link-item {
+            background: #f8fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .link-item:hover {
+            border-color: var(--tsm-teal);
+            box-shadow: 0 2px 8px rgba(15, 91, 114, 0.05);
+        }
+
+        .link-info {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .short-url {
+            color: var(--tsm-teal);
+            font-weight: 800;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            word-break: break-all;
+        }
+
+        .short-url:hover {
+            text-decoration: underline;
+            color: var(--tsm-teal-dark);
+        }
+
+        .original-url {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 4px;
+            word-break: break-all;
+        }
+
+        .link-stats {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge-clicks {
+            background-color: var(--tsm-green-light);
+            color: var(--tsm-green-dark);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(105, 175, 55, 0.3);
+        }
+
+        .actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-action {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--tsm-teal);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--tsm-teal-light);
+            border-color: var(--tsm-teal);
+        }
+
+        .btn-test {
+            background: var(--tsm-teal);
+            color: #ffffff;
+            border-color: var(--tsm-teal);
+        }
+
+        .btn-test:hover {
+            background: var(--tsm-teal-dark);
+            color: #ffffff;
+        }
+
+        .btn-delete {
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: #fef2f2;
+            border-color: var(--danger);
+        }
+
+        /* TOAST NOTIFICAÇÃO FLUTUANTE */
+        #toast-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--text-dark);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            max-width: 320px;
+        }
+
+        .toast.success { background: #065f46; border-left: 5px solid var(--success-toast); }
+        .toast.error { background: #991b1b; border-left: 5px solid var(--danger); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(10px); }
+        }
+
+        /* MODAL QR CODE */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 91, 114, 0.4);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .modal-content img {
+            width: 200px;
+            height: 200px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            background: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 30px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .link-item { flex-direction: column; align-items: flex-start; }
+            .link-stats { width: 100%; justify-content: space-between; }
+        }
+    </style>
 </head>
 <body>
-  <h1>🌟 Diário de Humor</h1>
 
-  <!-- Login -->
-  <div id="login">
-    <h2>Login</h2>
-    <input type="email" id="email" placeholder="Digite seu e-mail">
-    <input type="password" id="senha" placeholder="Digite sua senha">
-    <button onclick="salvarUsuario()">Salvar Usuário</button>
-  </div>
+<div class="container">
 
-  <!-- Tabs -->
-  <div id="tabs">
-    <div class="tab active" onclick="mostrarSecao('principal')">Principal</div>
-    <div class="tab" onclick="mostrarSecao('historico')">Histórico</div>
-    <div class="tab" onclick="mostrarSecao('analise')">Análise Psicológica</div>
-  </div>
+    <!-- HEADER COM LOGO OFICIAL TSM -->
+    <header>
+        <div class="logo-box">
+            <svg class="tsm-logo-svg" viewBox="0 0 500 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M250 10 L370 100 V185 C370 198 360 205 347 205 H260 C252 205 245 198 245 190 C245 182 252 175 260 175 H345 V105 L250 35 L155 105 V175 H190 C198 175 205 182 205 190 C205 198 198 205 190 205 H153 C140 205 130 198 130 185 V100 L250 10 Z" fill="#0F5B72"/>
+                <rect x="202" y="90" width="96" height="75" rx="6" stroke="#0F5B72" stroke-width="8" fill="none"/>
+                <line x1="188" y1="108" x2="202" y2="108" stroke="#0F5B72" stroke-width="5" stroke-linecap="round"/>
+                <line x1="188" y1="127" x2="202" y2="127" stroke="#0F5B72" stroke-width="5" stroke-linecap="round"/>
+                <line x1="188" y1="146" x2="202" y2="146" stroke="#0F5B72" stroke-width="5" stroke-linecap="round"/>
+                <line x1="298" y1="108" x2="312" y2="108" stroke="#0F5B72" stroke-width="5" stroke-linecap="round"/>
+                <line x1="298" y1="127" x2="312" y2="127" stroke="#0F5B72" stroke-width="5" stroke-linecap="round"/>
+                <line x1="298" y1="146" x2="312" y2="146" stroke="#0F5B72" stroke-width="5" stroke-linecap="round"/>
+                <path d="M250 180 C250 125 230 105 200 70 C230 75 255 93 250 120 C265 98 295 75 325 60 C325 92 295 115 250 180 Z" fill="#69AF37"/>
+                <path d="M250 150 C241 133 223 124 205 120 C218 115 236 124 250 150 Z" fill="#69AF37"/>
+                <text x="130" y="215" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="28" fill="#0F5B72" letter-spacing="1">TS</text>
+                <text x="168" y="215" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="28" fill="#69AF37" letter-spacing="1">M</text>
+                <text x="202" y="213" font-family="'Segoe UI', sans-serif" font-weight="700" font-size="10" fill="#0F5B72" letter-spacing="0.5">TECNOLOGIA, SUSTENTABILIDADE E GESTÃO</text>
+            </svg>
+        </div>
+        
+        <h1>Encurtador de Links Pro</h1>
+        <p>Gere links curtos de alta performance, rastreie acessos e crie QR Codes instantâneos</p>
+    </header>
 
-  <!-- Principal -->
-  <div id="principal" class="section" style="display:block;">
-    <p>Selecione seu humor de hoje:</p>
-    <select id="humor">
-      <option value="feliz">Feliz</option>
-      <option value="ansioso">Ansioso</option>
-      <option value="inspirado">Inspirado</option>
-      <option value="cansado">Cansado</option>
-      <option value="confiante">Confiante</option>
-    </select>
-    <button onclick="registrarHumor()">Registrar</button>
-
-    <div id="frase"></div>
-    <div id="grafico">
-      <canvas id="humorChart"></canvas>
+    <!-- PAINEL DE MÉTRICAS -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-icon">🔗</div>
+            <div class="metric-info">
+                <h3>Total de Links</h3>
+                <p id="stat-total-links">0</p>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-info">
+                <h3>Cliques Totais</h3>
+                <p id="stat-total-clicks">0</p>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Histórico -->
-  <div id="historico" class="section"></div>
+    <!-- FORMULÁRIO DE ENCURTAMENTO -->
+    <div class="card">
+        <h2>🔗 Gerar Link Curto</h2>
+        <form id="shortener-form" onsubmit="criarLink(event)">
+            <div class="form-group">
+                <label for="original-url">URL de Destino (Link Longo Original)</label>
+                <input type="text" id="original-url" placeholder="Ex: https://google.com ou https://meusite.com/pagina-longa" required>
+            </div>
 
-  <!-- Análise Psicológica -->
-  <div id="analise" class="section"></div>
+            <div class="form-group">
+                <label for="modo-encurtador">Tipo de Encurtador</label>
+                <select id="modo-encurtador" onchange="alternarModo()">
+                    <option value="api">⚡ Encurtador Web Global (Validação Instantânea - TinyURL)</option>
+                    <option value="tsm">🏷️ Link com Apelido Local (Modo Interno)</option>
+                </select>
+            </div>
 
-  <script>
-    const frases = {
-      feliz: { cor: "#FFD700", texto: "A alegria ilumina seu caminho!" },
-      ansioso: { cor: "#87CEEB", texto: "Respire fundo, você consegue." },
-      inspirado: { cor: "#98FB98", texto: "A criatividade está fluindo em você." },
-      cansado: { cor: "#D3D3D3", texto: "Descanse, amanhã será melhor." },
-      confiante: { cor: "#FF69B4", texto: "Você tem tudo para vencer!" }
-    };
+            <div class="form-group" id="slug-group">
+                <label for="custom-slug">Apelido Customizado (Opcional)</label>
+                <div class="slug-wrapper">
+                    <span class="slug-prefix" id="domain-prefix">tinyurl.com/</span>
+                    <input type="text" id="custom-slug" placeholder="ex: relatorio-2026" pattern="[a-zA-Z0-9-_]+" title="Apenas letras, números e hífens">
+                </div>
+            </div>
 
-    let chart;
+            <button type="submit" id="btn-submit" class="btn-primary">Encurtar Link Agora</button>
+        </form>
+    </div>
 
-    function salvarUsuario() {
-      const email = document.getElementById("email").value;
-      const senha = document.getElementById("senha").value;
-      if(email && senha) {
-        localStorage.setItem("usuario", JSON.stringify({email, senha}));
-        alert("Usuário autenticado!");
-        document.getElementById("login").style.display = "none"; // Oculta login
-      } else {
-        alert("Preencha e-mail e senha.");
-      }
+    <!-- LISTA DE LINKS COM BUSCA E FERRAMENTAS -->
+    <div class="card">
+        <h2>
+            <span>📋 Meus Links Encurtados</span>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-toolbar" onclick="exportarBackup()" title="Baixar Backup em JSON">💾 Exportar</button>
+                <button class="btn-toolbar" onclick="document.getElementById('import-file').click()" title="Restaurar de arquivo JSON">📂 Importar</button>
+                <input type="file" id="import-file" style="display:none" accept=".json" onchange="importarBackup(event)">
+            </div>
+        </h2>
+
+        <div class="list-toolbar">
+            <input type="text" id="search-input" placeholder="🔍 Filtrar links por URL ou apelido..." oninput="renderLinks()">
+        </div>
+
+        <div id="links-container" class="links-list">
+            <!-- Renderizado via JS -->
+        </div>
+    </div>
+
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- MODAL QR CODE -->
+<div id="qr-modal" class="modal" onclick="fecharModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3 style="color: var(--tsm-teal); margin-bottom: 10px;">QR Code do Link</h3>
+        <img id="qr-image" src="" alt="QR Code">
+        <button class="btn-action" onclick="fecharModal()" style="width: 100%; background: var(--tsm-teal); color: white; padding: 10px;">Fechar</button>
+    </div>
+</div>
+
+<script>
+    // ARMAZENAMENTO LOCAL DE LINKS
+    let linksDB = JSON.parse(localStorage.getItem('tsm_links_v5')) || [];
+
+    // VERIFICA REDIRECIONAMENTO HASH AO CARREGAR
+    window.addEventListener('DOMContentLoaded', () => {
+        verificarRedirecionamentoHash();
+        alternarModo();
+        atualizarMetricas();
+        renderLinks();
+    });
+
+    function mostrarToast(mensagem, tipo = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${tipo}`;
+        toast.innerHTML = `<span>${tipo === 'success' ? '✅' : '⚠️'}</span> ${mensagem}`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     }
 
-    function registrarHumor() {
-      const humor = document.getElementById("humor").value;
-      const data = new Date().toLocaleDateString("pt-BR");
-      const registro = { humor, data };
-
-      document.body.style.background = frases[humor].cor;
-      document.getElementById("frase").innerText = frases[humor].texto;
-
-      let historico = JSON.parse(localStorage.getItem("humores")) || [];
-      historico.push(registro);
-      localStorage.setItem("humores", JSON.stringify(historico));
-
-      mostrarHistorico();
-      atualizarGrafico();
-      gerarAnalise();
+    function atualizarMetricas() {
+        const totalLinks = linksDB.length;
+        const totalCliques = linksDB.reduce((acc, item) => acc + item.clicks, 0);
+        document.getElementById('stat-total-links').innerText = totalLinks;
+        document.getElementById('stat-total-clicks').innerText = totalCliques;
     }
 
-    function mostrarHistorico() {
-      let historico = JSON.parse(localStorage.getItem("humores")) || [];
-      const div = document.getElementById("historico");
-      div.innerHTML = "<h2>📜 Histórico</h2>";
-      historico.forEach((r, i) => {
-        div.innerHTML += `
-          <div class="registro">
-            ${r.data} — Humor: ${r.humor}
-            <button onclick="editarRegistro(${i})">Editar</button>
-            <button onclick="excluirRegistro(${i})">Excluir</button>
-          </div>`;
-      });
+    function verificarRedirecionamentoHash() {
+        const hash = window.location.hash;
+        if (hash) {
+            const slugBuscado = hash.replace('#', '').toLowerCase();
+            const linkEncontrado = linksDB.find(l => l.slug === slugBuscado || l.shortUrl.toLowerCase().endsWith('#' + slugBuscado));
+            if (linkEncontrado) {
+                linkEncontrado.clicks++;
+                localStorage.setItem('tsm_links_v5', JSON.stringify(linksDB));
+                window.location.href = linkEncontrado.originalUrl;
+            }
+        }
     }
 
-    function editarRegistro(index) {
-      let historico = JSON.parse(localStorage.getItem("humores")) || [];
-      const novoHumor = prompt("Digite o novo humor:", historico[index].humor);
-      if(novoHumor) {
-        historico[index].humor = novoHumor;
-        localStorage.setItem("humores", JSON.stringify(historico));
-        mostrarHistorico();
-        atualizarGrafico();
-        gerarAnalise();
-      }
+    function formatarURL(url) {
+        url = url.trim();
+        if (!/^https?:\/\//i.test(url)) {
+            return 'https://' + url;
+        }
+        return url;
     }
 
-    function excluirRegistro(index) {
-      let historico = JSON.parse(localStorage.getItem("humores")) || [];
-      historico.splice(index, 1);
-      localStorage.setItem("humores", JSON.stringify(historico));
-      mostrarHistorico();
-      atualizarGrafico();
-      gerarAnalise();
+    function alternarModo() {
+        const modo = document.getElementById('modo-encurtador').value;
+        const prefix = document.getElementById('domain-prefix');
+        if (modo === 'api') {
+            prefix.innerText = 'tinyurl.com/';
+        } else {
+            const paginaAtual = window.location.pathname.split('/').pop() || 'index.html';
+            prefix.innerText = `${paginaAtual}#`;
+        }
     }
 
-    function atualizarGrafico() {
-      let historico = JSON.parse(localStorage.getItem("humores")) || [];
-      let contagem = { feliz:0, ansioso:0, inspirado:0, cansado:0, confiante:0 };
-      historico.forEach(r => contagem[r.humor]++);
+    // CRIAR LINK ENCURTADO
+    async function criarLink(event) {
+        event.preventDefault();
 
-      const ctx = document.getElementById("humorChart").getContext("2d");
-      if(chart) {
-        chart.data.datasets[0].data = Object.values(contagem);
-        chart.update();
-      } else {
-        chart = new Chart(ctx, {
-          type: "pie",
-          data: {
-            labels: ["Feliz", "Ansioso", "Inspirado", "Cansado", "Confiante"],
-            datasets: [{
-              data: Object.values(contagem),
-              backgroundColor: ["#FFD700","#87CEEB","#98FB98","#D3D3D3","#FF69B4"]
-            }]
-          }
-        });
-      }
+        const btnSubmit = document.getElementById('btn-submit');
+        let originalUrl = document.getElementById('original-url').value;
+        const customSlug = document.getElementById('custom-slug').value.trim().toLowerCase();
+        const modo = document.getElementById('modo-encurtador').value;
+
+        if (!originalUrl) return;
+        originalUrl = formatarURL(originalUrl);
+
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "Processando e validando na web...";
+
+        let shortUrlFinal = "";
+
+        if (modo === 'api') {
+            try {
+                let targetApi = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(originalUrl)}`;
+                if (customSlug) {
+                    targetApi += `&alias=${encodeURIComponent(customSlug)}`;
+                }
+
+                const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetApi)}`);
+                
+                if (response.ok) {
+                    const resultText = (await response.text()).trim();
+                    if (resultText.startsWith('http')) {
+                        shortUrlFinal = resultText;
+                    } else {
+                        throw new Error('Apelido indisponível ou erro na criação.');
+                    }
+                } else {
+                    throw new Error('Servidor não respondeu.');
+                }
+            } catch (err) {
+                console.warn('Fallback ativado:', err);
+                try {
+                    const fallbackRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(originalUrl))}`);
+                    shortUrlFinal = (await fallbackRes.text()).trim();
+                } catch(e) {
+                    const base = window.location.href.split('#')[0];
+                    shortUrlFinal = `${base}#${customSlug || Math.random().toString(36).substr(2, 5)}`;
+                }
+            }
+        } else {
+            const base = window.location.href.split('#')[0];
+            const slugUsado = customSlug || Math.random().toString(36).substr(2, 5);
+            shortUrlFinal = `${base}#${slugUsado}`;
+        }
+
+        const novoItem = {
+            id: Date.now(),
+            shortUrl: shortUrlFinal,
+            originalUrl: originalUrl,
+            slug: customSlug || 'link',
+            clicks: 0,
+            date: new Date().toLocaleDateString('pt-BR')
+        };
+
+        linksDB.unshift(novoItem);
+        localStorage.setItem('tsm_links_v5', JSON.stringify(linksDB));
+
+        document.getElementById('shortener-form').reset();
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "Encurtar Link Agora";
+        alternarModo();
+        atualizarMetricas();
+        renderLinks();
+
+        mostrarToast("Link criado com sucesso!");
     }
 
-    function gerarAnalise() {
-      let historico = JSON.parse(localStorage.getItem("humores")) || [];
-      let contagem = { feliz:0, ansioso:0, inspirado:0, cansado:0, confiante:0 };
-      historico.forEach(r => contagem[r.humor]++);
+    function renderLinks() {
+        const container = document.getElementById('links-container');
+        const termoBusca = document.getElementById('search-input').value.toLowerCase();
 
-      let analise = "🔎 Análise Psicológica:<br>";
-      if(contagem.ansioso > contagem.feliz) {
-        analise += "Você tem registrado mais ansiedade do que felicidade. Talvez seja hora de buscar atividades relaxantes.<br>";
-      }
-      if(contagem.feliz > contagem.cansado) {
-        analise += "A felicidade está predominando sobre o cansaço, ótimo sinal de energia positiva!<br>";
-      }
-      if(contagem.inspirado > 0) {
-        analise += "Sua inspiração aparece com frequência, aproveite para criar e inovar.<br>";
-      }
-      if(contagem.confiante > 0) {
-        analise += "A confiança é uma força poderosa, continue cultivando-a.<br>";
-      }
+        const linksFiltrados = linksDB.filter(item => 
+            item.shortUrl.toLowerCase().includes(termoBusca) || 
+            item.originalUrl.toLowerCase().includes(termoBusca) ||
+            item.slug.toLowerCase().includes(termoBusca)
+        );
 
-      document.getElementById("analise").innerHTML = analise;
+        if (linksFiltrados.length === 0) {
+            container.innerHTML = `<div class="empty-state">Nenhum link encontrado.</div>`;
+            return;
+        }
+
+        container.innerHTML = linksFiltrados.map(item => {
+            return `
+                <div class="link-item">
+                    <div class="link-info">
+                        <a href="${item.shortUrl}" target="_blank" class="short-url" onclick="registrarClique(${item.id})">
+                            🔗 ${item.shortUrl}
+                        </a>
+                        <div class="original-url">Destino: ${item.originalUrl}</div>
+                    </div>
+
+                    <div class="link-stats">
+                        <span class="badge-clicks">📊 ${item.clicks} acessos</span>
+                        <div class="actions">
+                            <button class="btn-action btn-test" onclick="testarEContabilizar(${item.id})" title="Testar Link Encurtado">🚀 Abrir</button>
+                            <button class="btn-action" onclick="copiarTexto('${item.shortUrl}')" title="Copiar Link Curto">📋 Copiar</button>
+                            <button class="btn-action" onclick="gerarQRCode('${item.shortUrl}')" title="Gerar QR Code">📱 QR</button>
+                            <button class="btn-action btn-delete" onclick="deletarLink(${item.id})" title="Excluir">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
-    function mostrarSecao(secao) {
-      document.querySelectorAll(".section").forEach(s => s.style.display = "none");
-      document.getElementById(secao).style.display = "block";
-      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-      document.querySelector(`[onclick="mostrarSecao('${secao}')"]`).classList.add("active");
+    function testarEContabilizar(id) {
+        const item = linksDB.find(l => l.id === id);
+        if (item) {
+            item.clicks++;
+            localStorage.setItem('tsm_links_v5', JSON.stringify(linksDB));
+            atualizarMetricas();
+            renderLinks();
+            window.open(item.shortUrl, '_blank');
+        }
     }
 
-    mostrarHistorico();
-    atualizarGrafico();
-    gerarAnalise();
-  </script>
+    function registrarClique(id) {
+        const item = linksDB.find(l => l.id === id);
+        if (item) {
+            item.clicks++;
+            localStorage.setItem('tsm_links_v5', JSON.stringify(linksDB));
+            atualizarMetricas();
+            renderLinks();
+        }
+    }
+
+    function copiarTexto(texto) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(texto).then(() => {
+                mostrarToast("Link copiado para a área de transferência!");
+            }).catch(() => fallbackCopiar(texto));
+        } else {
+            fallbackCopiar(texto);
+        }
+    }
+
+    function fallbackCopiar(texto) {
+        const input = document.createElement('textarea');
+        input.value = texto;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        mostrarToast("Link copiado para a área de transferência!");
+    }
+
+    function gerarQRCode(url) {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+        document.getElementById('qr-image').src = qrUrl;
+        document.getElementById('qr-modal').style.display = 'flex';
+    }
+
+    function fecharModal(event) {
+        document.getElementById('qr-modal').style.display = 'none';
+    }
+
+    function deletarLink(id) {
+        if (confirm('Deseja realmente excluir este link?')) {
+            linksDB = linksDB.filter(l => l.id !== id);
+            localStorage.setItem('tsm_links_v5', JSON.stringify(linksDB));
+            atualizarMetricas();
+            renderLinks();
+            mostrarToast("Link excluído com sucesso.", "error");
+        }
+    }
+
+    function exportarBackup() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(linksDB, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `tsm_links_backup_${new Date().toISOString().slice(0,10)}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        mostrarToast("Backup exportado com sucesso!");
+    }
+
+    function importarBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (Array.isArray(importedData)) {
+                    linksDB = importedData;
+                    localStorage.setItem('tsm_links_v5', JSON.stringify(linksDB));
+                    atualizarMetricas();
+                    renderLinks();
+                    mostrarToast("Backup importado com sucesso!");
+                } else {
+                    throw new Error("Formato inválido");
+                }
+            } catch(err) {
+                mostrarToast("Erro ao importar arquivo de backup.", "error");
+            }
+        };
+        reader.readAsText(file);
+    }
+</script>
+
 </body>
 </html>
