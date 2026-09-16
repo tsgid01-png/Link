@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Diário de Humor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      transition: background 0.5s;
+      padding: 20px;
+    }
+    select, button, input {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    #frase {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    #tabs {
+      margin-top: 20px;
+    }
+    .tab {
+      display: inline-block;
+      padding: 10px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      margin: 0 5px;
+    }
+    .active {
+      background: #eee;
+      font-weight: bold;
+    }
+    .section {
+      display: none;
+      margin-top: 20px;
+    }
+    .registro {
+      margin: 5px 0;
+      padding: 5px;
+      border-bottom: 1px solid #ccc;
+    }
+    #grafico {
+      max-width: 500px;
+      margin: 30px auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌟 Diário de Humor</h1>
+
+  <!-- Login -->
+  <div id="login">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Digite seu e-mail">
+    <input type="password" id="senha" placeholder="Digite sua senha">
+    <button onclick="salvarUsuario()">Salvar Usuário</button>
+  </div>
+
+  <!-- Tabs -->
+  <div id="tabs">
+    <div class="tab active" onclick="mostrarSecao('principal')">Principal</div>
+    <div class="tab" onclick="mostrarSecao('historico')">Histórico</div>
+    <div class="tab" onclick="mostrarSecao('analise')">Análise Psicológica</div>
+  </div>
+
+  <!-- Principal -->
+  <div id="principal" class="section" style="display:block;">
+    <p>Selecione seu humor de hoje:</p>
+    <select id="humor">
+      <option value="feliz">Feliz</option>
+      <option value="ansioso">Ansioso</option>
+      <option value="inspirado">Inspirado</option>
+      <option value="cansado">Cansado</option>
+      <option value="confiante">Confiante</option>
+    </select>
+    <button onclick="registrarHumor()">Registrar</button>
+
+    <div id="frase"></div>
+    <div id="grafico">
+      <canvas id="humorChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Histórico -->
+  <div id="historico" class="section"></div>
+
+  <!-- Análise Psicológica -->
+  <div id="analise" class="section"></div>
+
+  <script>
+    const frases = {
+      feliz: { cor: "#FFD700", texto: "A alegria ilumina seu caminho!" },
+      ansioso: { cor: "#87CEEB", texto: "Respire fundo, você consegue." },
+      inspirado: { cor: "#98FB98", texto: "A criatividade está fluindo em você." },
+      cansado: { cor: "#D3D3D3", texto: "Descanse, amanhã será melhor." },
+      confiante: { cor: "#FF69B4", texto: "Você tem tudo para vencer!" }
+    };
+
+    let chart;
+
+    function salvarUsuario() {
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+      if(email && senha) {
+        localStorage.setItem("usuario", JSON.stringify({email, senha}));
+        alert("Usuário autenticado!");
+        document.getElementById("login").style.display = "none"; // Oculta login
+      } else {
+        alert("Preencha e-mail e senha.");
+      }
+    }
+
+    function registrarHumor() {
+      const humor = document.getElementById("humor").value;
+      const data = new Date().toLocaleDateString("pt-BR");
+      const registro = { humor, data };
+
+      document.body.style.background = frases[humor].cor;
+      document.getElementById("frase").innerText = frases[humor].texto;
+
+      let historico = JSON.parse(localStorage.getItem("humores")) || [];
+      historico.push(registro);
+      localStorage.setItem("humores", JSON.stringify(historico));
+
+      mostrarHistorico();
+      atualizarGrafico();
+      gerarAnalise();
+    }
+
+    function mostrarHistorico() {
+      let historico = JSON.parse(localStorage.getItem("humores")) || [];
+      const div = document.getElementById("historico");
+      div.innerHTML = "<h2>📜 Histórico</h2>";
+      historico.forEach((r, i) => {
+        div.innerHTML += `
+          <div class="registro">
+            ${r.data} — Humor: ${r.humor}
+            <button onclick="editarRegistro(${i})">Editar</button>
+            <button onclick="excluirRegistro(${i})">Excluir</button>
+          </div>`;
+      });
+    }
+
+    function editarRegistro(index) {
+      let historico = JSON.parse(localStorage.getItem("humores")) || [];
+      const novoHumor = prompt("Digite o novo humor:", historico[index].humor);
+      if(novoHumor) {
+        historico[index].humor = novoHumor;
+        localStorage.setItem("humores", JSON.stringify(historico));
+        mostrarHistorico();
+        atualizarGrafico();
+        gerarAnalise();
+      }
+    }
+
+    function excluirRegistro(index) {
+      let historico = JSON.parse(localStorage.getItem("humores")) || [];
+      historico.splice(index, 1);
+      localStorage.setItem("humores", JSON.stringify(historico));
+      mostrarHistorico();
+      atualizarGrafico();
+      gerarAnalise();
+    }
+
+    function atualizarGrafico() {
+      let historico = JSON.parse(localStorage.getItem("humores")) || [];
+      let contagem = { feliz:0, ansioso:0, inspirado:0, cansado:0, confiante:0 };
+      historico.forEach(r => contagem[r.humor]++);
+
+      const ctx = document.getElementById("humorChart").getContext("2d");
+      if(chart) {
+        chart.data.datasets[0].data = Object.values(contagem);
+        chart.update();
+      } else {
+        chart = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: ["Feliz", "Ansioso", "Inspirado", "Cansado", "Confiante"],
+            datasets: [{
+              data: Object.values(contagem),
+              backgroundColor: ["#FFD700","#87CEEB","#98FB98","#D3D3D3","#FF69B4"]
+            }]
+          }
+        });
+      }
+    }
+
+    function gerarAnalise() {
+      let historico = JSON.parse(localStorage.getItem("humores")) || [];
+      let contagem = { feliz:0, ansioso:0, inspirado:0, cansado:0, confiante:0 };
+      historico.forEach(r => contagem[r.humor]++);
+
+      let analise = "🔎 Análise Psicológica:<br>";
+      if(contagem.ansioso > contagem.feliz) {
+        analise += "Você tem registrado mais ansiedade do que felicidade. Talvez seja hora de buscar atividades relaxantes.<br>";
+      }
+      if(contagem.feliz > contagem.cansado) {
+        analise += "A felicidade está predominando sobre o cansaço, ótimo sinal de energia positiva!<br>";
+      }
+      if(contagem.inspirado > 0) {
+        analise += "Sua inspiração aparece com frequência, aproveite para criar e inovar.<br>";
+      }
+      if(contagem.confiante > 0) {
+        analise += "A confiança é uma força poderosa, continue cultivando-a.<br>";
+      }
+
+      document.getElementById("analise").innerHTML = analise;
+    }
+
+    function mostrarSecao(secao) {
+      document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+      document.getElementById(secao).style.display = "block";
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelector(`[onclick="mostrarSecao('${secao}')"]`).classList.add("active");
+    }
+
+    mostrarHistorico();
+    atualizarGrafico();
+    gerarAnalise();
+  </script>
+</body>
+</html>
